@@ -3,6 +3,7 @@ import asyncio
 import datetime
 import re
 import random
+import pytz
 from database import init_db, add_user, sign_agreement, add_temptation, add_habit, get_user_profile, get_todays_tasks, set_wakeup_time, get_wakeup_time, update_balance, update_streak, update_max_streak, set_status, increment_fail_count, get_user_balance, set_award, get_all_users, set_day_off, get_day_off, get_user_habits, delete_habit, get_user_temptations, delete_temptation, normalize_text, set_notifications, get_notifications, set_control_mode, get_control_mode, set_control_failed, get_control_failed, set_challenges_enabled, get_challenges_enabled, get_challenge_assigned_date, set_challenge_assigned_date
 from aiogram import Bot, Dispatcher, Router, types, F
 from aiogram.filters import Command
@@ -16,7 +17,9 @@ from config import BOT_TOKEN
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 
 bot = Bot(token=BOT_TOKEN)
-scheduler = AsyncIOScheduler()
+#scheduler = AsyncIOScheduler()
+scheduler = AsyncIOScheduler(timezone=pytz.timezone("Europe/Moscow"))
+
 
 logging.basicConfig(level=logging.INFO)
 
