@@ -1500,8 +1500,22 @@ async def support_author_handler(message: types.Message):
 
 dp.include_router(router)
 
-# ПРОВЕРКА_1
+async def handle_health(request):
+    return web.Response(text="OK")
+
+async def start_webserver():
+    app = web.Application()
+    app.router.add_get("/", handle_health)
+    port = int(os.environ.get("PORT", 8000))
+    runner = web.AppRunner(app)
+    await runner.setup()
+    site = web.TCPSite(runner, '0.0.0.0', port)
+    await site.start()
+
 async def main():
+    # 2) запускаем web‑сервер первым
+    await start_webserver()
+    # 3) затем стартуем APScheduler, Telegram‑polling и т.д.
     scheduler.start()  # Теперь event loop уже запущен
     # Планируем ежедневный опрос о выполнение привычек в 22:00
     scheduler.add_job(send_daily_check, "cron", hour=22, minute=00, id="daily_check")

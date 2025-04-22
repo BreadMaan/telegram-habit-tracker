@@ -3,5 +3,5 @@ aiogram
 python-dotenv
 APScheduler
 pytz
-flask>=2.0
+aiohttp
 
