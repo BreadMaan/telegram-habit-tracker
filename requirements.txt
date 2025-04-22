@@ -3,4 +3,5 @@ aiogram
 python-dotenv
 APScheduler
 pytz
-flask
+flask>=2.0
+
