@@ -14,7 +14,6 @@ from aiogram.fsm.state import State, StatesGroup
 from aiogram.fsm.storage.memory import MemoryStorage
 from aiogram.fsm.context import FSMContext
 from aiogram.exceptions import TelegramBadRequest
-from aiogram.utils.exceptions import TelegramBadRequest
 from aiohttp import web
 from config import BOT_TOKEN
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
