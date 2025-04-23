@@ -14,9 +14,11 @@ from aiogram.fsm.state import State, StatesGroup
 from aiogram.fsm.storage.memory import MemoryStorage
 from aiogram.fsm.context import FSMContext
 from aiogram.exceptions import TelegramBadRequest
+from aiogram.utils.exceptions import TelegramBadRequest
 from aiohttp import web
 from config import BOT_TOKEN
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
+
 
 bot = Bot(token=BOT_TOKEN)
 #scheduler = AsyncIOScheduler()
@@ -501,7 +503,12 @@ async def check_yes_handler(callback: types.CallbackQuery):
     text_congratulations_successful_day = random.choice(congratulations_successful_day_message)
 
     # Удаляем инлайн-клавиатуру и отправляем финальное сообщение
-    await callback.message.edit_reply_markup(reply_markup=None)
+    # вместо прямого edit_reply_markup оборачиваем в try/except
+    try:
+        await callback.message.edit_reply_markup(reply_markup=None)
+    except TelegramBadRequest:
+        # ничего не делаем, клавиатура уже чистая
+        pass
     await callback.message.answer(text_congratulations_successful_day, reply_markup=main_menu_keyboard)  # До этого, было так await callback.message.answer("Отлично! Ты справился, тебе начислено 10 монет.", reply_markup=main_menu_keyboard)
     await callback.answer()
 
@@ -514,7 +521,12 @@ async def check_no_handler(callback: types.CallbackQuery):
     set_status(user_id, "День с ограниченным функционалом")
     update_streak(user_id, 0)
     increment_fail_count(user_id)
-    await callback.message.edit_reply_markup(reply_markup=None)
+    # вместо прямого edit_reply_markup оборачиваем в try/except
+    try:
+        await callback.message.edit_reply_markup(reply_markup=None)
+    except TelegramBadRequest:
+        # ничего не делаем, клавиатура уже чистая
+        pass
     await callback.message.answer("Ошибки – часть пути. Но они имеют последствия.\nЗавтра день запретов и шанс стать лучше!", reply_markup=main_menu_keyboard)
     await callback.answer()
 
@@ -653,7 +665,12 @@ async def frequency_handler(callback: types.CallbackQuery, state: FSMContext):
     if callback.data == "frequency_daily":
          frequency = "ежедневно"
          add_habit(user_id, habit, frequency)
-         await callback.message.edit_reply_markup(reply_markup=None)  # удаляем клавиатуру
+         # вместо прямого edit_reply_markup оборачиваем в try/except
+         try:
+             await callback.message.edit_reply_markup(reply_markup=None)
+         except TelegramBadRequest:
+             # ничего не делаем, клавиатура уже чистая
+             pass  # удаляем клавиатуру
          await callback.message.answer(
              f"Привычка '{habit}' с частотой 'ежедневно' добавлена.\nВведите следующую привычку или напишите 'стоп' для завершения."
          )
@@ -745,7 +762,12 @@ async def buy_30_handler(callback: types.CallbackQuery):
     else:
          update_balance(user_id, -cost)
     # Удаляем inline-клавиатуру и возвращаемся в меню магазина
-    await callback.message.edit_reply_markup(reply_markup=None)
+    # вместо прямого edit_reply_markup оборачиваем в try/except
+    try:
+        await callback.message.edit_reply_markup(reply_markup=None)
+    except TelegramBadRequest:
+        # ничего не делаем, клавиатура уже чистая
+        pass
     await callback.message.answer("Покупка успешна! Теперь ты можешь 30 минут посвятить любой своей хотелке.\nВозвращаемся в главное меню.", reply_markup=main_menu_keyboard)
     await callback.answer()
 
@@ -758,7 +780,12 @@ async def buy_1h_handler(callback: types.CallbackQuery):
          await callback.message.answer("Недостаточно средств для покупки 1 часа. Попробуйте другой товар.")
     else:
          update_balance(user_id, -cost)
-    await callback.message.edit_reply_markup(reply_markup=None)
+    # вместо прямого edit_reply_markup оборачиваем в try/except
+    try:
+        await callback.message.edit_reply_markup(reply_markup=None)
+    except TelegramBadRequest:
+        # ничего не делаем, клавиатура уже чистая
+        pass
     await callback.message.answer("Покупка успешна! Теперь ты можешь 1 час посвятить любой своей хотелке.\nВозвращаемся в главное меню.", reply_markup=main_menu_keyboard)
     await callback.answer()
 
@@ -771,7 +798,12 @@ async def buy_2h_handler(callback: types.CallbackQuery):
          await callback.message.answer("Недостаточно средств для покупки 2 часов. Попробуйте другой товар.")
     else:
          update_balance(user_id, -cost)
-    await callback.message.edit_reply_markup(reply_markup=None)
+    # вместо прямого edit_reply_markup оборачиваем в try/except
+    try:
+        await callback.message.edit_reply_markup(reply_markup=None)
+    except TelegramBadRequest:
+        # ничего не делаем, клавиатура уже чистая
+        pass
     await callback.message.answer("Покупка успешна! Теперь ты можешь 2 часа посвятить любой своей хотелке.\nВозвращаемся в главное меню.", reply_markup=main_menu_keyboard)
     await callback.answer()
 
@@ -787,7 +819,12 @@ async def buy_cancel_handler(callback: types.CallbackQuery):
          # Изменяем статус с "День с ограниченным функционалом" на "Свободный день"
          set_status(user_id, "Свободный день")
          unschedule_control_mode(user_id)
-    await callback.message.edit_reply_markup(reply_markup=None)
+    # вместо прямого edit_reply_markup оборачиваем в try/except
+    try:
+        await callback.message.edit_reply_markup(reply_markup=None)
+    except TelegramBadRequest:
+        # ничего не делаем, клавиатура уже чистая
+        pass
     await callback.message.answer("Покупка успешна! Ограниченный режим на сегодня отменён.\nВозвращаемся в главное меню.", reply_markup=main_menu_keyboard)
     await callback.answer()
 
@@ -802,14 +839,24 @@ async def buy_dayoff_handler(callback: types.CallbackQuery):
          update_balance(user_id, -cost)
          # Устанавливаем флаг, что сегодня куплен выходной от привычек
          set_day_off(user_id, 1)
-    await callback.message.edit_reply_markup(reply_markup=None)
+    # вместо прямого edit_reply_markup оборачиваем в try/except
+    try:
+        await callback.message.edit_reply_markup(reply_markup=None)
+    except TelegramBadRequest:
+        # ничего не делаем, клавиатура уже чистая
+        pass
     await callback.message.answer("Покупка успешна! Выходной от привычек приобретён.\nВозвращаемся в главное меню.", reply_markup=main_menu_keyboard)
     await callback.answer()
 
 @router.callback_query(F.data == "shop_back")
 async def shop_back_handler(callback: types.CallbackQuery):
     # При нажатии "Назад" в магазине возвращаем пользователя в меню профиля
-    await callback.message.edit_reply_markup(reply_markup=None)
+    # вместо прямого edit_reply_markup оборачиваем в try/except
+    try:
+        await callback.message.edit_reply_markup(reply_markup=None)
+    except TelegramBadRequest:
+        # ничего не делаем, клавиатура уже чистая
+        pass
     await callback.message.answer("Возвращаемся в главное меню.", reply_markup=main_menu_keyboard)
     await callback.answer()
 
@@ -1164,7 +1211,12 @@ async def set_notif_handler(callback: types.CallbackQuery):
     # например, создать задачу, которая будет отправлять сообщение "Выполните привычки" в указанные часы.
     # Для простоты мы просто сообщим об установке.
     
-    await callback.message.edit_reply_markup(reply_markup=None)
+    # вместо прямого edit_reply_markup оборачиваем в try/except
+    try:
+        await callback.message.edit_reply_markup(reply_markup=None)
+    except TelegramBadRequest:
+        # ничего не делаем, клавиатура уже чистая
+        pass
     await bot.send_message(user_id, f"Уведомления успешно установлены ({count} раз в день).", reply_markup=reminders_menu_keyboard)
     await callback.answer()
 
@@ -1285,7 +1337,12 @@ async def control_mode_handler(callback: types.CallbackQuery):
         set_control_mode(user_id, "жесткий")
         response_text = "Выбран строгий режим контроля."
     # Удаляем inline клавиатуру и отправляем сообщение
-    await callback.message.edit_reply_markup(reply_markup=None)
+    # вместо прямого edit_reply_markup оборачиваем в try/except
+    try:
+        await callback.message.edit_reply_markup(reply_markup=None)
+    except TelegramBadRequest:
+        # ничего не делаем, клавиатура уже чистая
+        pass
     await bot.send_message(user_id, response_text, reply_markup=settings_menu_keyboard)
     await callback.answer()
 
@@ -1334,11 +1391,21 @@ async def control_response_handler(callback: types.CallbackQuery):
     if callback.data == "control_fail":
         # Если пользователь сорвался, устанавливаем флаг
         set_control_failed(user_id, 1)
-        await callback.message.edit_reply_markup(reply_markup=None)
+        # вместо прямого edit_reply_markup оборачиваем в try/except
+        try:
+            await callback.message.edit_reply_markup(reply_markup=None)
+        except TelegramBadRequest:
+            # ничего не делаем, клавиатура уже чистая
+            pass
         await bot.send_message(user_id, "Очень жаль. Сегодня ты сорвался, и ограниченный день продлен. Возвращаемся в Главное меню.", reply_markup=main_menu_keyboard)
     else:
         # Если пользователь держится
-        await callback.message.edit_reply_markup(reply_markup=None)
+        # вместо прямого edit_reply_markup оборачиваем в try/except
+        try:
+            await callback.message.edit_reply_markup(reply_markup=None)
+        except TelegramBadRequest:
+            # ничего не делаем, клавиатура уже чистая
+            pass
         await bot.send_message(user_id, "Отлично, продолжай в том же духе!", reply_markup=main_menu_keyboard)
     await callback.answer()
 
