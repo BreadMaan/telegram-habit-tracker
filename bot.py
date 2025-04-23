@@ -1574,6 +1574,7 @@ async def handle_health(request):
 async def start_webserver():
     app = web.Application()
     app.router.add_get("/", handle_health)
+    app.router.add_head("/", handle_health)
     port = int(os.environ.get("PORT", 8000))
     runner = web.AppRunner(app)
     await runner.setup()
